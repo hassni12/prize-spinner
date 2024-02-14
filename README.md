@@ -14,3 +14,4 @@ This is the second version of the roulette wheel that can spin randomly and stop
 That old version only stops on 3% discounts. This one can stop on one of many random numbers.
 
 Watch the video here: https://www.youtube.com/watch?v=SiKMEBTx8vI
+![Three Percent Discount Wheel Example](Screenshot%202024-02-14%20at%206.48.20%20PM.png)
