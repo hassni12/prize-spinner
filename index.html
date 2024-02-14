@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Discount Wheel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@2.6.2/build/phaser.js"></script>
+
+    <style>
+      body {
+        text-align: center;
+      }
+      .button {
+        margin: 10px;
+        padding: .9rem 3.3rem;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 2rem;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Add shadow to buttons */
+
+      }
+      #startButton {
+        background-color: #ff3333; /* Start button color */
+        color: white;
+      }
+
+      #stopButton {
+        background-color: #3a4483; /* Stop button color */
+        color: white;
+      }
+      .button:hover {
+        opacity: 0.8; /* Reduce opacity on hover */
+      }
+
+      .button:active {
+        background-color: inherit; /* Prevent background color change on click */
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="dwheel"
+      style="margin: 0 auto; width: 100%; max-width: 512px"
+    ></div>
+    <button id="startButton" class="button">Start</button>
+    <button id="stopButton" class="button">Stop</button>
+
+    <script>
+      var game = new Phaser.Game(512, 768, Phaser.AUTO, "dwheel");
+      var dwheel = {};
+
+      var wheel;
+      var wheelstarted = false;
+      var rotationSpeed = 5; // Adjust rotation speed as needed
+      var rotating = false;
+      var stopAngle;
+
+      var randomstops = [
+        { rot: 685, value: 3 },
+        { rot: 725, value: 2 },
+        { rot: 1550, value: 10 },
+        { rot: 1580, value: 5 },
+        { rot: 1610, value: 3 },
+      ];
+
+      dwheel.Main = {
+        preload: function () {
+          game.load.image("wheel", "wheel1.png");
+          game.load.image("needle", "needle1.png");
+          game.load.image("base", "base.png");
+          game.load.image("line", "line.png");
+          game.load.image("right", "right1.png");
+          game.load.image("right1", "right2.png");
+          game.load.image("left", "left1.png");
+          game.load.image("left2", "left2.png");
+          game.stage.backgroundColor = "#ffffff";
+        },
+        create: function () {
+          // Inside the create function of dwheel.Main object
+
+          base = game.add.sprite(game.width / 2, game.height / 2, "base"); // Adjusted position
+          base.anchor.setTo(0.5, 0.5); // Set anchor to the center
+          base.scale.setTo(0.9);
+          // Add colored line under the base image
+          var line = game.add.sprite(
+            game.width / 2,
+            game.height / 2.05 + base.height / 2 - 5,
+            "line"
+          ); // Position the image sprite
+          line.anchor.setTo(0.5, 1); // Set anchor to the bottom center
+          line.scale.setTo((base.width / line.width) * 2.3, 1.5); // Scale the image sprite to match the base width and increase height and width by 50%
+
+          var leftImage1 = game.add.sprite(
+            game.width / 2 - base.width / 2,
+            game.height / 2,
+            "left"
+          );
+          leftImage1.anchor.setTo(0.3);
+          leftImage1.scale.setTo(0.8);
+
+          var leftImage2 = game.add.sprite(
+            game.width / 2 - base.width / 2 - 80,
+            game.height / 2.05,
+            "left2"
+          );
+          leftImage2.anchor.setTo(0.1);
+          leftImage2.scale.setTo(0.7);
+
+          var rightImage1 = game.add.sprite(
+            game.width / 2 + base.width / 2-40,
+            game.height / 2,
+            "right"
+          );
+          rightImage1.anchor.setTo(0.1);
+          rightImage1.scale.setTo(0.8);
+
+          var rightImage2 = game.add.sprite(
+            game.width / 2 + base.width / 2 + 43,
+            game.height / 2.05,
+            "right1"
+          );
+          rightImage2.anchor.setTo(0.1);
+          rightImage2.scale.setTo(0.7);
+          wheel = game.add.sprite(game.width / 2, game.height / 2 - 7, "wheel"); // Adjusted position
+          wheel.anchor.setTo(0.5, 0.5); // Set anchor to the center
+          wheel.scale.setTo(0.33);
+          wheel.inputEnabled = true;
+
+          needle = game.add.sprite(
+            game.width / 2,
+            game.height / 1.96 - 108,
+            "needle"
+          );
+          needle.anchor.setTo(0.5);
+          needle.scale.setTo(0.5);
+
+          document
+            .getElementById("startButton")
+            .addEventListener("click", rotateTheWheel);
+          document
+            .getElementById("stopButton")
+            .addEventListener("click", stopWheel);
+        },
+        update: function () {
+          if (rotating) {
+            wheel.angle += rotationSpeed;
+            if (wheel.angle % 360 === stopAngle) {
+              rotating = false;
+              wheelstarted = false;
+              console.log("Wheel stopped");
+              alert("Congratulation, bro! You won 3% Discount...");
+            }
+          }
+        },
+      };
+
+      game.state.add("Main", dwheel.Main);
+      game.state.start("Main");
+
+      function rotateTheWheel() {
+        if (!wheelstarted) {
+          wheelstarted = true;
+          rotationSpeed = 5; // Reset rotation speed
+          var randomnumber = game.rnd.integerInRange(0, randomstops.length - 1);
+          stopAngle = randomstops[randomnumber].rot;
+          rotating = true;
+
+          // Automatically stop after 6000 milliseconds
+          setTimeout(function () {
+            stopWheel();
+          }, 6000);
+        }
+      }
+
+      function stopWheel() {
+        var stopInterval = setInterval(function () {
+          if (rotationSpeed > 0.1) {
+            rotationSpeed *= 0.9; // Decrease rotation speed gradually
+          } else {
+            clearInterval(stopInterval);
+            rotationSpeed = 0; // Ensure rotation speed is 0
+            rotating = false;
+            wheelstarted = false;
+            console.log("Wheel stopped");
+            alert("Congratulation, bro! You won 3% Discount...");
+          }
+        }, 100);
+      }
+    </script>
+  </body>
+</html>
